@@ -11,8 +11,9 @@
 // Para ver los distintos sensores mirar fichero "comportamiento.hpp"
 Action ComportamientoJugador::think(Sensores sensores)
 {
-	Action accion = actIDLE;
+	Action sigAccion = actIDLE;
 
+	//actualizo la variable actual
 	actual.fila = sensores.posF;
 	actual.columna = sensores.posC;
 	actual.orientacion = sensores.sentido;
@@ -32,9 +33,21 @@ Action ComportamientoJugador::think(Sensores sensores)
 		objetivos.push_back(aux);
 	}
 
-	bool hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
 
-	return accion;
+	//Si no hay plan construyo uno
+	if(!hay_plan){
+		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+	}
+
+	if(hay_plan and plan.size()>0){
+		sigAccion = plan.front();
+		plan.erase(plan.begin());
+	}
+	else{
+		cout << "No se pudo encontrar un plan.\n";
+	}
+
+	return sigAccion;
 }
 
 // Llama al algoritmo de busqueda que se usara en cada comportamiento del agente
