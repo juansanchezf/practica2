@@ -183,6 +183,32 @@ struct ComparaEstados
 	}
 };
 
+//Creación de nuevos nodos para la busqueda A estrella
+struct nodoA{
+	estado padre;
+	estado st;
+	int h;
+	int g;
+	int f = g + h;
+	list<Action>secuencia;
+
+	friend bool operator<(const &nodoA a, const &nodoA b){
+		return a.f > b.f;
+	}
+};
+
+struct ComparaNodosA
+{
+	bool operator()(const nodoA &a, const nodoA &n) const
+	{
+		if (a.f > n.f)
+			return true;
+		else
+			return false;
+	}
+};
+////////////////////////////////////////////////////////////////////////////////////////
+
 // Implementación de la busqueda en profundidad.
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
@@ -196,7 +222,7 @@ bool ComportamientoJugador::pathFinding_Profundidad(const estado &origen, const 
 
 	nodo current;
 	current.st = origen;
-	current.secuencia.empty();
+	current.secuencia.clear();	//Esto era un bool y no hacia nada
 
 	Abiertos.push(current);
 
@@ -292,6 +318,123 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 	set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
 	queue<nodo> Abiertos;				  // Cola de Abiertos
 
+	//nodo almacena ( estado st, list<Action> secuencia )
+	// estado st almacena (int fila, int col, int orientacion)
+	nodo current;
+	current.st = origen;
+	current.secuencia.clear();
+
+	//En un primer momento metemos current que almacena la posición del nodo inicial.
+	Abiertos.push(current);
+
+	//Seguimos buscando solución mientras queden nodos en la lista de abiertos y mientras la fila y columna sean distintos
+	//de las del nodo objetivo
+	while (!Abiertos.empty() and (current.st.fila != destino.fila or current.st.columna != destino.columna))
+	{
+		//Para no repetir nodos en abiertos que ya estén en cerrados, se busca el nodo que esté al frente de abuertos en
+		//la lista de cerrados, si el find devuelve algo que no es end quiere decir que se encuentra en la lista de cerrados
+		//por lo que lo saca.
+		while(Cerrados.find(Abiertos.front().st) != Cerrados.end()){
+			Abiertos.pop();
+		}
+
+		//Cuando encuentra un nodo que no estuviera previamente en cerrados lo introduce en la lista de cerrados.
+		Cerrados.insert(current.st);
+
+		// Generar descendiente de girar a la derecha 90 grados
+		nodo hijoTurnR = current;
+		//Copia al padre en el hijo y le aplica la transformación
+		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
+
+		//Busca al hijo en cerrados para no meterlo en caso de que esté
+		if (Cerrados.find(hijoTurnR.st) == Cerrados.end())
+		{
+			//Si no está introduce en el nodo hijo la acción ya que forma parte de su secuencia
+			hijoTurnR.secuencia.push_back(actTURN_R);
+
+			//Introduce el nodo en la lista de abiertos
+			Abiertos.push(hijoTurnR);
+		}
+
+		// Generar descendiente de girar a la derecha 45 grados
+		nodo hijoSEMITurnR = current;
+		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
+		if (Cerrados.find(hijoSEMITurnR.st) == Cerrados.end())
+		{
+			hijoSEMITurnR.secuencia.push_back(actSEMITURN_R);
+			Abiertos.push(hijoSEMITurnR);
+		}
+
+		// Generar descendiente de girar a la izquierda 90 grados
+		nodo hijoTurnL = current;
+		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
+		if (Cerrados.find(hijoTurnL.st) == Cerrados.end())
+		{
+			hijoTurnL.secuencia.push_back(actTURN_L);
+			Abiertos.push(hijoTurnL);
+		}
+
+		// Generar descendiente de girar a la izquierda 45 grados
+		nodo hijoSEMITurnL = current;
+		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
+		if (Cerrados.find(hijoSEMITurnL.st) == Cerrados.end())
+		{
+			hijoSEMITurnL.secuencia.push_back(actSEMITURN_L);
+			Abiertos.push(hijoSEMITurnL);
+		}
+
+		// Generar descendiente de avanzar
+		nodo hijoForward = current;
+		if (!HayObstaculoDelante(hijoForward.st))
+		{
+			if (Cerrados.find(hijoForward.st) == Cerrados.end())
+			{
+				hijoForward.secuencia.push_back(actFORWARD);
+				Abiertos.push(hijoForward);
+			}
+		}
+
+		// Tomo el siguiente valor de la Abiertos
+		if (!Abiertos.empty())
+		{
+			//Actualiza current al front de la lista de abiertos.
+			current = Abiertos.front();
+		}
+	}
+
+	cout << "Terminada la busqueda\n";
+
+	//Cuando se sale del while puede ser por dos motivos, o bien ha encontrado el nodo objetivo, en cuyo caso
+	//coinciden la fila y columnas con las de destino, por lo que llama a PintaPlan, o bien se ha salido porque se 
+	//ha termiando la lista de abiertos y no ha encontrado nada, en cuyo caso devuelve eso.
+	if (current.st.fila == destino.fila and current.st.columna == destino.columna)
+	{
+		cout << "Cargando el plan\n";
+		plan = current.secuencia;
+		cout << "Longitud del plan: " << plan.size() << endl;
+		PintaPlan(plan);
+		// ver el plan en el mapa
+		VisualizaPlan(origen, plan);
+		return true;
+	}
+	else
+	{
+		cout << "No encontrado plan\n";
+	}
+
+	return false;
+}
+
+
+bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const estado &destino, list<Action> &plan)
+{
+	// Borro la lista es una priority queue ordenada en función del valor de f del nodo analizado.
+	cout << "Calculando plan\n";
+	plan.clear();
+	set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
+		// Cola de Abiertos
+
+	/*
 	nodo current;
 	current.st = origen;
 	current.secuencia.empty();
@@ -375,7 +518,7 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 	{
 		cout << "No encontrado plan\n";
 	}
-
+	*/
 	return false;
 }
 
