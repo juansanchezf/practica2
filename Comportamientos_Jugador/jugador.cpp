@@ -192,12 +192,12 @@ struct nodoA{
 	int f = g + h;
 	list<Action>secuencia;
 
-	friend bool operator<(const &nodoA a, const &nodoA b){
+	bool operator<(const &nodoA a, const &nodoA b){
 		return a.f > b.f;
 	}
 };
 
-struct ComparaNodosA
+/*struct ComparaNodosA
 {
 	bool operator()(const nodoA &a, const nodoA &n) const
 	{
@@ -206,7 +206,7 @@ struct ComparaNodosA
 		else
 			return false;
 	}
-};
+};*/
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // Implementación de la busqueda en profundidad.
@@ -305,7 +305,6 @@ bool ComportamientoJugador::pathFinding_Profundidad(const estado &origen, const 
 
 	return false;
 }
-
 
 // Implementación de la busqueda en anchura.
 // Entran los puntos origen y destino y devuelve la
@@ -424,7 +423,6 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 
 	return false;
 }
-
 
 bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const estado &destino, list<Action> &plan)
 {
