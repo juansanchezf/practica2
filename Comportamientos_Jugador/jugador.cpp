@@ -192,8 +192,8 @@ struct nodoA{
 	int f = g + h;
 	list<Action>secuencia;
 
-	bool operator<(const &nodoA a, const &nodoA b){
-		return a.f > b.f;
+	friend bool operator<(const nodoA &a, const nodoA &b){
+		return (a.f > b.f);
 	}
 };
 
@@ -430,8 +430,10 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 	cout << "Calculando plan\n";
 	plan.clear();
 	set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
-		// Cola de Abiertos
+	priority_queue<nodoA> Abiertos;// Cola de Abiertos
 
+	nodoA current;
+	current.
 	/*
 	nodo current;
 	current.st = origen;
