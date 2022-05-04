@@ -11,6 +11,12 @@ struct estado {
   int orientacion;
 };
 
+struct estadoA{
+  int fila;
+  int columna;
+  int orientacion;
+};
+
 class ComportamientoJugador : public Comportamiento {
   public:
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
@@ -41,6 +47,10 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Aestrella(const estado &origen, const estado &destino, list<Action> &plan);
 
+  //Métodos h y g para el algoritmo A*
+    int CosteCasilla(estado &st, Action &ac, const bool &tiene_bikini, const bool &tiene_zapatillas);
+    int FuncionHeuristica(estado &actual, const estado &meta);
+  ///////////////////////////////////////////////////////////
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);
 

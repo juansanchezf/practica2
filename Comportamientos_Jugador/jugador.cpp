@@ -183,30 +183,37 @@ struct ComparaEstados
 	}
 };
 
+//ComparaNodos
+//meter nodos en la lista de cerrados en vez de estados
+//////////
+
 //Creación de nuevos nodos para la busqueda A estrella
 struct nodoA{
-	estado padre;
+	estado padre; //quitar
 	estado st;
 	int h;
-	int g;
-	int f = g + h;
+	int g; //Coste de llegar desde el nodo origen hasta el nodo actual.
+	int f;
+	bool tiene_bikini;
+    bool tiene_zapatillas;
 	list<Action>secuencia;
 
 	friend bool operator<(const nodoA &a, const nodoA &b){
-		return (a.f > b.f);
+		return (a.f < b.f);
 	}
 };
 
-/*struct ComparaNodosA
+struct ComparaEstadosA
 {
-	bool operator()(const nodoA &a, const nodoA &n) const
+	bool operator()(const estado &a, const estado &n) const
 	{
-		if (a.f > n.f)
+		if ((a.fila > n.fila) or (a.fila == n.fila and a.columna > n.columna) or
+			(a.fila == n.fila and a.columna == n.columna and a.orientacion > n.orientacion))
 			return true;
 		else
 			return false;
 	}
-};*/
+};
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // Implementación de la busqueda en profundidad.
@@ -433,8 +440,98 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 	priority_queue<nodoA> Abiertos;// Cola de Abiertos
 
 	nodoA current;
-	current.
+	current.st = origen;
+	
+	//inicializo a 0 el costo del nodo origen ya que es lo que cuesta llegar desde el origen a la misma casilla.
+	current.g = 0;
+	current.h = FuncionHeuristica(origen, destino);
+	current.f = current.g + current.h;
+	
+	//cambiar para el nivel 3 y 4
+	current.tiene_bikini = false;
+	current.tiene_zapatillas = false;
+
+	current.secuencia.clear();
+
+	Abiertos.push(current);
+
+	while(!Abiertos.empty() and (current.st.fila != destino.fila or current.st.columna != destino.columna)){
+		Abiertos.pop();
+
+		//Mirar si la casilla current me da zapatillas o bikini para cambiar el estado.
+		Cerrados.insert(current.st);
+		
+
+		// Generar descendiente de girar a la derecha 90 grados
+		nodoA hijoTurnR = current;
+		Action ac = actTURN_R;
+		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
+		if (Cerrados.find(hijoTurnR.st) == Cerrados.end())
+		{
+			hijoTurnR.g += CosteCasilla(hijoTurnR.st, ac, hijoTurnR.tiene_bikini, hijoTurnR.tiene_zapatillas);
+			hijoTurnR.h = FuncionHeuristica(hijoTurnR.st, destino);
+			hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
+			hijoTurnR.secuencia.push_back(actTURN_R);
+			Abiertos.push(hijoTurnR);
+		}
+		
+		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
+
+
+
+
+
+
+
+
+
+
+		
+			
+		}
+
+		// Generar descendiente de girar a la derecha 45 grados
+		nodoA hijoSEMITurnR = current;
+		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
+		if (Cerrados.find(hijoSEMITurnR.st) == Cerrados.end())
+		{
+			hijoSEMITurnR.secuencia.push_back(actSEMITURN_R);
+			Abiertos.push(hijoSEMITurnR);
+		}
+
+		// Generar descendiente de girar a la izquierda 90 grados
+		nodoA hijoTurnL = current;
+		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
+		if (Cerrados.find(hijoTurnL.st) == Cerrados.end())
+		{
+			hijoTurnL.secuencia.push_back(actTURN_L);
+			Abiertos.push(hijoTurnL);
+		}
+
+		// Generar descendiente de girar a la izquierda 45 grados
+		nodoA hijoSEMITurnL = current;
+		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
+		if (Cerrados.find(hijoSEMITurnL.st) == Cerrados.end())
+		{
+			hijoSEMITurnL.secuencia.push_back(actSEMITURN_L);
+			Abiertos.push(hijoSEMITurnL);
+		}
+
+		// Generar descendiente de avanzar
+		nodoA hijoForward = current;
+		if (!HayObstaculoDelante(hijoForward.st))
+		{
+			if (Cerrados.find(hijoForward.st) == Cerrados.end())
+			{
+				hijoForward.secuencia.push_back(actFORWARD);
+				Abiertos.push(hijoForward);
+			}
+		}
+	}
+
+
 	/*
+	
 	nodo current;
 	current.st = origen;
 	current.secuencia.empty();
@@ -521,6 +618,77 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 	*/
 	return false;
 }
+
+//Calcular el coste de trasladarse por una casilla
+int ComportamientoJugador::CosteCasilla(estado &st, Action &ac, const bool &tiene_bikini, const bool &tiene_zapatillas){
+	char casilla = mapaResultado[st.fila][st.columna];
+
+	switch(ac){
+		case actFORWARD:
+			if(casilla == 'B'){
+				if (!tiene_zapatillas)
+					return 100;
+				else
+					return 15;
+			}
+			else if(casilla == 'A'){
+				if(!tiene_bikini)
+					return 200;
+				else
+					return 10;
+			}
+			else if(casilla == 'T')
+				return 2;
+			else
+				return 1;
+			break;
+		case actTURN_L:
+		case actTURN_R:
+			if(casilla == 'B'){
+				if (!tiene_zapatillas)
+					return 3;
+				else
+					return 1;
+			}
+			else if(casilla == 'A'){
+				if(!tiene_bikini)
+					return 500;
+				else
+					return 5;
+			}
+			else if(casilla == 'T')
+				return 2;
+			else
+				return 1;
+			break;
+		case actSEMITURN_L:
+		case actSEMITURN_R:
+			if(casilla == 'B'){
+				if (!tiene_zapatillas)
+					return 2;
+				else
+					return 1;
+			}
+			else if(casilla == 'A'){
+				if(!tiene_bikini)
+					return 300;
+				else
+					return 2;
+			}
+			else if(casilla == 'T')
+				return 1;
+			else
+				return 1;
+			break;
+	}
+}
+
+int ComportamientoJugador::FuncionHeuristica(estado &actual, const estado &meta){
+	//cambiar la heuristica
+	return sqrt(pow((meta.fila - actual.fila),2) + pow((meta.columna - actual.columna),2));
+}
+
+
 
 // Sacar por la consola la secuencia del plan obtenido
 void ComportamientoJugador::PintaPlan(list<Action> plan)
