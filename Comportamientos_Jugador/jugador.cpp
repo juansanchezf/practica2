@@ -202,7 +202,9 @@ struct nodoA{
 struct ComparaNodos{
 	bool operator()(const nodoA &a, const nodoA &n) const{
 		if ((a.st.fila > n.st.fila) or (a.st.fila == n.st.fila and a.st.columna > n.st.columna) or
-			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion > n.st.orientacion))
+			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion > n.st.orientacion) or
+			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion == n.st.orientacion and a.tiene_bikini != n.tiene_bikini) or 
+			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion == n.st.orientacion and a.tiene_bikini == n.tiene_bikini and a.tiene_zapatillas != n.tiene_zapatillas))
 			return true;
 		else
 			return false;
@@ -434,9 +436,9 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 	// Borro la lista es una priority queue ordenada en función del valor de f del nodo analizado.
 	cout << "Calculando plan\n";
 	plan.clear();
-	set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
+	//set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
 
-	set<nodoA, ComparaNodos> Cerrados_nodos; // Lista de nodos en vez de estados
+	set<nodoA, ComparaNodos> Cerrados; // Lista de nodos en vez de estados
 	priority_queue<nodoA> Abiertos;// Cola de Abiertos
 
 	nodoA current;
@@ -459,14 +461,14 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		Abiertos.pop();
 
 		//Mirar si la casilla current me da zapatillas o bikini para cambiar el estado.
-		Cerrados.insert(current.st);
+		Cerrados.insert(current);
 		
 
 		// Generar descendiente de girar a la derecha 90 grados
 		nodoA hijoTurnR = current;
 		Action ac = actTURN_R;
 		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
-		if (Cerrados.find(hijoTurnR.st) == Cerrados.end())
+		if (Cerrados.find(hijoTurnR) == Cerrados.end())
 		{
 			hijoTurnR.g += CosteCasilla(hijoTurnR.st, ac, hijoTurnR.tiene_bikini, hijoTurnR.tiene_zapatillas);
 			hijoTurnR.h = FuncionHeuristica(hijoTurnR.st, destino);
@@ -476,20 +478,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		}
 		
 		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
-
-
-
-
-
-
-
-
-
-
 		
-			
-		
-
 		// Generar descendiente de girar a la derecha 45 grados
 		nodoA hijoSEMITurnR = current;
 		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
@@ -685,9 +674,19 @@ int ComportamientoJugador::CosteCasilla(estado &st, Action &ac, const bool &tien
 	}
 }
 
-int ComportamientoJugador::FuncionHeuristica(estado &actual, const estado &meta){
+
+//Prueba de heurística en que la distancia es, en caso de que una de las componentes sea igual (es decir que se encuentran en línea), devuelve
+// la resta de la componente diferente en valor absoluto.
+// En el caso de que ambas componentes sean diferentes calcula la suma de valores absolutos de las restas de las componentes dos a dos y divide el valor entre 2.
+int ComportamientoJugador::FuncionHeuristica(const estado &actual, const estado &meta){
+	if( actual.fila == meta.fila)
+		return abs(meta.columna - actual.columna);
+	else if( actual.columna == meta.columna)
+		return abs(meta.fila - actual.fila);
+	else
+		return (abs(meta.fila - actual.fila) + abs(meta.columna - actual.columna)/2);
 	//cambiar la heuristica
-	return sqrt(pow((meta.fila - actual.fila),2) + pow((meta.columna - actual.columna),2));
+	//return sqrt(pow((meta.fila - actual.fila),2) + pow((meta.columna - actual.columna),2));
 }
 
 

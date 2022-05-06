@@ -49,7 +49,7 @@ class ComportamientoJugador : public Comportamiento {
 
   //Métodos h y g para el algoritmo A*
     int CosteCasilla(estado &st, Action &ac, const bool &tiene_bikini, const bool &tiene_zapatillas);
-    int FuncionHeuristica(estado &actual, const estado &meta);
+    int FuncionHeuristica(const estado &actual, const estado &meta);
   ///////////////////////////////////////////////////////////
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);
