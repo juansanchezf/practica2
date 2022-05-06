@@ -183,13 +183,9 @@ struct ComparaEstados
 	}
 };
 
-//ComparaNodos
-//meter nodos en la lista de cerrados en vez de estados
-//////////
-
 //Creación de nuevos nodos para la busqueda A estrella
 struct nodoA{
-	estado padre; //quitar
+	//¿Puntero al nodo padre más eficiente?
 	estado st;
 	int h;
 	int g; //Coste de llegar desde el nodo origen hasta el nodo actual.
@@ -203,17 +199,19 @@ struct nodoA{
 	}
 };
 
-struct ComparaEstadosA
-{
-	bool operator()(const estado &a, const estado &n) const
-	{
-		if ((a.fila > n.fila) or (a.fila == n.fila and a.columna > n.columna) or
-			(a.fila == n.fila and a.columna == n.columna and a.orientacion > n.orientacion))
+struct ComparaNodos{
+	bool operator()(const nodoA &a, const nodoA &n) const{
+		if ((a.st.fila > n.st.fila) or (a.st.fila == n.st.fila and a.st.columna > n.st.columna) or
+			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion > n.st.orientacion))
 			return true;
 		else
 			return false;
 	}
 };
+
+//ComparaNodos
+//meter nodos en la lista de cerrados en vez de estados
+//////////
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // Implementación de la busqueda en profundidad.
@@ -437,6 +435,8 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 	cout << "Calculando plan\n";
 	plan.clear();
 	set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
+
+	set<nodoA, ComparaNodos> Cerrados_nodos; // Lista de nodos en vez de estados
 	priority_queue<nodoA> Abiertos;// Cola de Abiertos
 
 	nodoA current;
@@ -488,7 +488,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 
 		
 			
-		}
+		
 
 		// Generar descendiente de girar a la derecha 45 grados
 		nodoA hijoSEMITurnR = current;
@@ -528,6 +528,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 			}
 		}
 	}
+	
 
 
 	/*
@@ -616,6 +617,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		cout << "No encontrado plan\n";
 	}
 	*/
+	
 	return false;
 }
 
