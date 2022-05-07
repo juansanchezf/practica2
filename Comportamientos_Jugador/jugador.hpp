@@ -11,12 +11,6 @@ struct estado {
   int orientacion;
 };
 
-struct estadoA{
-  int fila;
-  int columna;
-  int orientacion;
-};
-
 class ComportamientoJugador : public Comportamiento {
   public:
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
