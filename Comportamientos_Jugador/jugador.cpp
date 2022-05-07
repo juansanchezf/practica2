@@ -548,14 +548,16 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 				hijoForward.h = FuncionHeuristica(hijoForward.st, destino);
 				hijoForward.f = hijoForward.g + hijoForward.h;
 				hijoForward.secuencia.push_back(actFORWARD);
-				if(mapaResultado[hijoForward.st.fila][hijoForward.st.columna] == 'K'){
+				/////////////////////////////////////////////
+				/*if(mapaResultado[hijoForward.st.fila][hijoForward.st.columna] == 'K'){
 					hijoForward.tiene_bikini = true;
 					hijoForward.tiene_zapatillas = false;
 				}
 				else if(mapaResultado[hijoForward.st.fila][hijoForward.st.columna] == 'D'){
 					hijoForward.tiene_zapatillas = true;
 					hijoForward.tiene_bikini = false;
-				}
+				}*/
+				//////////////////////////////////////////////
 				Abiertos.push(hijoForward);
 			}
 		}
