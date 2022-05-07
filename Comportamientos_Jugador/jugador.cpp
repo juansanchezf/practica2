@@ -433,18 +433,23 @@ bool ComportamientoJugador::pathFinding_Anchura(const estado &origen, const esta
 
 bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const estado &destino, list<Action> &plan)
 {
-	// Borro la lista es una priority queue ordenada en función del valor de f del nodo analizado.
+	//Para este algoritmo he creado un nuevo tipo de nodo llamado nodoA que además de la información que almacenaba
+	//el nodo normal almacena también los valores de A* f, g y h, además de si tiene o no tiene zapatillas en un determinado
+	//momento del plan.
+
 	cout << "Calculando plan\n";
 	plan.clear();
-	//set<estado, ComparaEstados> Cerrados; // Lista de Cerrados
 
-	set<nodoA, ComparaNodos> Cerrados; // Lista de nodos en vez de estados
+	//En este caso voy a tener una lista de nodos cerrados y una priority_queue de nodos abiertos ordenados en función del menor
+	//valor de f para que siempre tengamos el nodo óptimo.
+	set<nodoA, ComparaNodos> Cerrados; // Lista de nodosA en vez de estados
 	priority_queue<nodoA> Abiertos;// Cola de Abiertos
 
 	nodoA current;
 	current.st = origen;
 	
-	//inicializo a 0 el costo del nodo origen ya que es lo que cuesta llegar desde el origen a la misma casilla.
+	//inicializo a 0 el costo del nodo origen ya que es lo que cuesta llegar desde el origen a la misma casilla e inicializo el resto de
+	//variables.
 	current.g = 0;
 	current.h = FuncionHeuristica(origen, destino);
 	current.f = current.g + current.h;
@@ -481,37 +486,53 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		
 		// Generar descendiente de girar a la derecha 45 grados
 		nodoA hijoSEMITurnR = current;
+		ac = actSEMITURN_R;
 		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
-		if (Cerrados.find(hijoSEMITurnR.st) == Cerrados.end())
+		if (Cerrados.find(hijoSEMITurnR) == Cerrados.end())
 		{
+			hijoSEMITurnR.g += CosteCasilla(hijoSEMITurnR.st, ac, hijoSEMITurnR.tiene_bikini, hijoSEMITurnR.tiene_zapatillas);
+			hijoSEMITurnR.f = FuncionHeuristica(hijoSEMITurnR.st, destino);
 			hijoSEMITurnR.secuencia.push_back(actSEMITURN_R);
 			Abiertos.push(hijoSEMITurnR);
 		}
+		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
 
 		// Generar descendiente de girar a la izquierda 90 grados
 		nodoA hijoTurnL = current;
+		ac = actTURN_L;
 		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
-		if (Cerrados.find(hijoTurnL.st) == Cerrados.end())
+		if (Cerrados.find(hijoTurnL) == Cerrados.end())
 		{
+			hijoTurnL.g += CosteCasilla(hijoTurnL.st, ac, hijoTurnL.tiene_bikini, hijoTurnL.tiene_zapatillas);
+			hijoTurnL.h = FuncionHeuristica(hijoTurnL.st,destino);
 			hijoTurnL.secuencia.push_back(actTURN_L);
 			Abiertos.push(hijoTurnL);
 		}
+		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
 
 		// Generar descendiente de girar a la izquierda 45 grados
 		nodoA hijoSEMITurnL = current;
+		ac = actSEMITURN_L;
 		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
-		if (Cerrados.find(hijoSEMITurnL.st) == Cerrados.end())
+		if (Cerrados.find(hijoSEMITurnL) == Cerrados.end())
 		{
+			hijoSEMITurnL.g += CosteCasilla(hijoSEMITurnL.st, ac, hijoSEMITurnL.tiene_bikini, hijoSEMITurnL.tiene_zapatillas);
+			hijoSEMITurnL.h = FuncionHeuristica(hijoSEMITurnL.st, destino);
 			hijoSEMITurnL.secuencia.push_back(actSEMITURN_L);
 			Abiertos.push(hijoSEMITurnL);
 		}
+		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
+
 
 		// Generar descendiente de avanzar
 		nodoA hijoForward = current;
+		ac = actFORWARD;
 		if (!HayObstaculoDelante(hijoForward.st))
 		{
-			if (Cerrados.find(hijoForward.st) == Cerrados.end())
+			if (Cerrados.find(hijoForward) == Cerrados.end())
 			{
+				hijoForward.g += CosteCasilla(hijoForward.st, ac, hijoForward.tiene_bikini, hijoForward.tiene_zapatillas);
+				hijoForward.h = FuncionHeuristica(hijoForward.st, destino);
 				hijoForward.secuencia.push_back(actFORWARD);
 				Abiertos.push(hijoForward);
 			}
