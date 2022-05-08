@@ -217,7 +217,7 @@ bool ComportamientoJugador::pathFinding_Profundidad(const estado &origen, const 
 
 	nodo current;
 	current.st = origen;
-	current.secuencia.clear();	//Esto era un bool y no hacia nada
+	current.secuencia.clear();
 
 	Abiertos.push(current);
 
@@ -429,7 +429,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 
 	//En este caso voy a tener una lista de nodos cerrados y una priority_queue de nodos abiertos ordenados en función del menor
 	//valor de f para que siempre tengamos el nodo óptimo.
-	set<nodoA, ComparaNodos> Cerrados; // Lista de nodosA en vez de estados
+	set<nodoA, ComparaNodos> Cerrados; // Lista de nodosA en vez de estados y un nuevo struct comparaNodos
 	priority_queue<nodoA> Abiertos;// Cola de Abiertos
 
 	nodoA current;
@@ -455,13 +455,14 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		//Mirar si la casilla current me da zapatillas o bikini para cambiar el estado.
 		Cerrados.insert(current);
 		
-
 		// Generar descendiente de girar a la derecha 90 grados
 		nodoA hijoTurnR = current;
 		Action ac = actTURN_R;
 		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
 
 		//Comprobar que el nuevo nodo no esté ya en abiertos o en cerrados
+		// La función yaEnAbiertos modifica la cola de Abiertos y en caso de que el nodo ya se encuentre
+		// comprueba el nodo que tenga menor valor de f.
 		bool estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnR, ac, destino);
 		if (!estaEnAbiertos and Cerrados.find(hijoTurnR) == Cerrados.end())
 		{
@@ -513,7 +514,6 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 			Abiertos.push(hijoSEMITurnL);
 		}
 		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
-
 
 
 		// Generar descendiente de avanzar
@@ -677,6 +677,8 @@ bool ComportamientoJugador::yaEnAbiertos(priority_queue<nodoA> &Abiertos,nodoA &
 			Auxiliar.push(comparar);
 		}
 	}
+
+	Abiertos = Auxiliar;
 
 	return estaEnAbiertos;
 }
