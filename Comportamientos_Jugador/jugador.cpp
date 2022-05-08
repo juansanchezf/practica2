@@ -187,22 +187,6 @@ struct ComparaEstados
 	}
 };
 
-//Creación de nuevos nodos para la busqueda A estrella
-struct nodoA{
-	//¿Puntero al nodo padre más eficiente?
-	estado st;
-	int h;
-	int g; //Coste de llegar desde el nodo origen hasta el nodo actual.
-	int f;
-	bool tiene_bikini;
-    bool tiene_zapatillas;
-	list<Action>secuencia;
-
-	friend bool operator<(const nodoA &a, const nodoA &b){
-		return (a.f > b.f);
-	}
-};
-
 struct ComparaNodos{
 	bool operator()(const nodoA &a, const nodoA &n) const{
 		if ((a.st.fila > n.st.fila) or (a.st.fila == n.st.fila and a.st.columna > n.st.columna) or
@@ -239,7 +223,6 @@ bool ComportamientoJugador::pathFinding_Profundidad(const estado &origen, const 
 
 	while (!Abiertos.empty() and (current.st.fila != destino.fila or current.st.columna != destino.columna))
 	{
-
 		Abiertos.pop();
 		Cerrados.insert(current.st);
 
@@ -479,14 +462,10 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
 
 		//Comprobar que el nuevo nodo no esté ya en abiertos o en cerrados
-
-
-
-		if (Cerrados.find(hijoTurnR) == Cerrados.end())
+		bool estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnR, ac, destino);
+		if (!estaEnAbiertos and Cerrados.find(hijoTurnR) == Cerrados.end())
 		{
-			hijoTurnR.g += CosteCasilla(hijoTurnR.st, ac, hijoTurnR.tiene_bikini, hijoTurnR.tiene_zapatillas);
-			hijoTurnR.h = FuncionHeuristica(hijoTurnR.st, destino);
-			hijoTurnR.f = hijoTurnR.g + hijoTurnR.h;
+			ActualizarValorHeuristico(hijoTurnR,ac,destino);
 			hijoTurnR.secuencia.push_back(actTURN_R);
 			Abiertos.push(hijoTurnR);
 		}
@@ -497,11 +476,11 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		nodoA hijoSEMITurnR = current;
 		ac = actSEMITURN_R;
 		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
-		if (Cerrados.find(hijoSEMITurnR) == Cerrados.end())
+
+		estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnR, ac, destino);
+		if (!estaEnAbiertos and Cerrados.find(hijoSEMITurnR) == Cerrados.end())
 		{
-			hijoSEMITurnR.g += CosteCasilla(hijoSEMITurnR.st, ac, hijoSEMITurnR.tiene_bikini, hijoSEMITurnR.tiene_zapatillas);
-			hijoSEMITurnR.h = FuncionHeuristica(hijoSEMITurnR.st, destino);
-			hijoSEMITurnR.f = hijoSEMITurnR.g + hijoSEMITurnR.h;
+			ActualizarValorHeuristico(hijoSEMITurnR,ac,destino);
 			hijoSEMITurnR.secuencia.push_back(actSEMITURN_R);
 			Abiertos.push(hijoSEMITurnR);
 		}
@@ -511,11 +490,11 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		nodoA hijoTurnL = current;
 		ac = actTURN_L;
 		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
-		if (Cerrados.find(hijoTurnL) == Cerrados.end())
+
+		estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnL, ac, destino);
+		if (!estaEnAbiertos and Cerrados.find(hijoTurnL) == Cerrados.end())
 		{
-			hijoTurnL.g += CosteCasilla(hijoTurnL.st, ac, hijoTurnL.tiene_bikini, hijoTurnL.tiene_zapatillas);
-			hijoTurnL.h = FuncionHeuristica(hijoTurnL.st,destino);
-			hijoTurnL.f = hijoTurnL.g + hijoTurnL.h;
+			ActualizarValorHeuristico(hijoTurnL,ac,destino);
 			hijoTurnL.secuencia.push_back(actTURN_L);
 			Abiertos.push(hijoTurnL);
 		}
@@ -525,11 +504,11 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		nodoA hijoSEMITurnL = current;
 		ac = actSEMITURN_L;
 		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
-		if (Cerrados.find(hijoSEMITurnL) == Cerrados.end())
+
+		estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnL, ac, destino);
+		if (!estaEnAbiertos and Cerrados.find(hijoSEMITurnL) == Cerrados.end())
 		{
-			hijoSEMITurnL.g += CosteCasilla(hijoSEMITurnL.st, ac, hijoSEMITurnL.tiene_bikini, hijoSEMITurnL.tiene_zapatillas);
-			hijoSEMITurnL.h = FuncionHeuristica(hijoSEMITurnL.st, destino);
-			hijoSEMITurnL.f = hijoSEMITurnL.g + hijoSEMITurnL.h;
+			ActualizarValorHeuristico(hijoSEMITurnL,ac,destino);
 			hijoSEMITurnL.secuencia.push_back(actSEMITURN_L);
 			Abiertos.push(hijoSEMITurnL);
 		}
@@ -542,21 +521,21 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		ac = actFORWARD;
 		if (!HayObstaculoDelante(hijoForward.st))
 		{
-			if (Cerrados.find(hijoForward) == Cerrados.end())
+			estaEnAbiertos = yaEnAbiertos(Abiertos, hijoForward, ac, destino);
+
+			if (!estaEnAbiertos and Cerrados.find(hijoForward) == Cerrados.end())
 			{
-				hijoForward.g += CosteCasilla(hijoForward.st, ac, hijoForward.tiene_bikini, hijoForward.tiene_zapatillas);
-				hijoForward.h = FuncionHeuristica(hijoForward.st, destino);
-				hijoForward.f = hijoForward.g + hijoForward.h;
+				ActualizarValorHeuristico(hijoForward,ac,destino);
 				hijoForward.secuencia.push_back(actFORWARD);
 				/////////////////////////////////////////////
-				/*if(mapaResultado[hijoForward.st.fila][hijoForward.st.columna] == 'K'){
+				if(mapaResultado[hijoForward.st.fila][hijoForward.st.columna] == 'K'){
 					hijoForward.tiene_bikini = true;
 					hijoForward.tiene_zapatillas = false;
 				}
 				else if(mapaResultado[hijoForward.st.fila][hijoForward.st.columna] == 'D'){
 					hijoForward.tiene_zapatillas = true;
 					hijoForward.tiene_bikini = false;
-				}*/
+				}
 				//////////////////////////////////////////////
 				Abiertos.push(hijoForward);
 			}
@@ -657,15 +636,51 @@ int ComportamientoJugador::CosteCasilla(estado &st, Action &ac, const bool &tien
 // la resta de la componente diferente en valor absoluto.
 // En el caso de que ambas componentes sean diferentes calcula la suma de valores absolutos de las restas de las componentes dos a dos y divide el valor entre 2.
 int ComportamientoJugador::FuncionHeuristica(const estado &actual, const estado &meta){
-	if( actual.fila == meta.fila)
+	if( actual.fila == meta.fila && actual.columna != meta.columna)
 		return abs(meta.columna - actual.columna);
-	else if( actual.columna == meta.columna)
+	else if( actual.columna == meta.columna && actual.fila != meta.fila)
 		return abs(meta.fila - actual.fila);
 	else
 		return (abs(meta.fila - actual.fila) + abs(meta.columna - actual.columna)/2);
-	//cambiar la heuristica
-	//return sqrt(pow((meta.fila - actual.fila),2) + pow((meta.columna - actual.columna),2));
 }
+
+// Funcion auxiliar que actualiza el valor heurístico a partir de la g y la h de un nodo
+void ComportamientoJugador::ActualizarValorHeuristico(nodoA &actualizar, Action &ac, const estado &destino){
+	actualizar.g += ComportamientoJugador::CosteCasilla(actualizar.st, ac, actualizar.tiene_bikini, actualizar.tiene_zapatillas);
+	actualizar.h = ComportamientoJugador::FuncionHeuristica(actualizar.st, destino);
+	actualizar.f = actualizar.g + actualizar.h;
+}
+
+//Funcion que comprueba si un nodo descendiente se encuentra ya en la cola de Abiertos, en caso de que esté comprueba si es mejor
+//que el existente y en caso de serlo lo introduce y elimina el otro.
+bool ComportamientoJugador::yaEnAbiertos(priority_queue<nodoA> &Abiertos,nodoA &descendiente, Action &ac, const estado &destino){
+	priority_queue<nodoA> Auxiliar;
+	bool estaEnAbiertos = false;
+
+	while(!Abiertos.empty()){
+		nodoA comparar = Abiertos.top();
+		Abiertos.pop();
+
+		if( descendiente.st == comparar.st and descendiente.tiene_bikini==comparar.tiene_bikini and 
+			descendiente.tiene_zapatillas == comparar.tiene_zapatillas){
+			estaEnAbiertos = true;
+			ActualizarValorHeuristico(descendiente,ac,destino);
+			if(descendiente.f <= comparar.f){
+				descendiente.secuencia.push_back(ac);
+				Auxiliar.push(descendiente);
+			}
+			else{
+				Auxiliar.push(comparar);
+			}
+		}
+		else{
+			Auxiliar.push(comparar);
+		}
+	}
+
+	return estaEnAbiertos;
+}
+
 
 
 
