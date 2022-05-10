@@ -23,7 +23,7 @@ struct nodoA{
 	int g; //Coste de llegar desde el nodo origen hasta el nodo actual.
 	int f;
 	bool tiene_bikini;
-    bool tiene_zapatillas;
+  bool tiene_zapatillas;
 	list<Action>secuencia;
 
 	friend bool operator<(const nodoA &a, const nodoA &b){

@@ -191,8 +191,8 @@ struct ComparaNodos{
 	bool operator()(const nodoA &a, const nodoA &n) const{
 		if ((a.st.fila > n.st.fila) or (a.st.fila == n.st.fila and a.st.columna > n.st.columna) or
 			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion > n.st.orientacion) or
-			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion == n.st.orientacion and a.tiene_bikini != n.tiene_bikini) or 
-			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion == n.st.orientacion and a.tiene_bikini == n.tiene_bikini and a.tiene_zapatillas != n.tiene_zapatillas))
+			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion == n.st.orientacion and a.tiene_bikini > n.tiene_bikini) or 
+			(a.st.fila == n.st.fila and a.st.columna == n.st.columna and a.st.orientacion == n.st.orientacion and a.tiene_bikini == n.tiene_bikini and a.tiene_zapatillas > n.tiene_zapatillas))
 			return true;
 		else
 			return false;
@@ -460,11 +460,12 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		Action ac = actTURN_R;
 		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
 
+		//tener una doble estructura para tener una de set y asi saber si el nodo está ya en abiertos
 		//Comprobar que el nuevo nodo no esté ya en abiertos o en cerrados
 		// La función yaEnAbiertos modifica la cola de Abiertos y en caso de que el nodo ya se encuentre
 		// comprueba el nodo que tenga menor valor de f.
-		bool estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnR, ac, destino);
-		if (!estaEnAbiertos and Cerrados.find(hijoTurnR) == Cerrados.end())
+		//bool estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnR, ac, destino);
+		if (Cerrados.find(hijoTurnR) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoTurnR,ac,destino);
 			hijoTurnR.secuencia.push_back(actTURN_R);
@@ -478,8 +479,8 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		ac = actSEMITURN_R;
 		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
 
-		estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnR, ac, destino);
-		if (!estaEnAbiertos and Cerrados.find(hijoSEMITurnR) == Cerrados.end())
+		//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnR, ac, destino);
+		if (Cerrados.find(hijoSEMITurnR) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoSEMITurnR,ac,destino);
 			hijoSEMITurnR.secuencia.push_back(actSEMITURN_R);
@@ -492,8 +493,8 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		ac = actTURN_L;
 		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
 
-		estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnL, ac, destino);
-		if (!estaEnAbiertos and Cerrados.find(hijoTurnL) == Cerrados.end())
+		//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnL, ac, destino);
+		if (Cerrados.find(hijoTurnL) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoTurnL,ac,destino);
 			hijoTurnL.secuencia.push_back(actTURN_L);
@@ -506,8 +507,8 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		ac = actSEMITURN_L;
 		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
 
-		estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnL, ac, destino);
-		if (!estaEnAbiertos and Cerrados.find(hijoSEMITurnL) == Cerrados.end())
+		//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnL, ac, destino);
+		if (Cerrados.find(hijoSEMITurnL) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoSEMITurnL,ac,destino);
 			hijoSEMITurnL.secuencia.push_back(actSEMITURN_L);
@@ -521,9 +522,9 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		ac = actFORWARD;
 		if (!HayObstaculoDelante(hijoForward.st))
 		{
-			estaEnAbiertos = yaEnAbiertos(Abiertos, hijoForward, ac, destino);
+			//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoForward, ac, destino);
 
-			if (!estaEnAbiertos and Cerrados.find(hijoForward) == Cerrados.end())
+			if (Cerrados.find(hijoForward) == Cerrados.end())
 			{
 				ActualizarValorHeuristico(hijoForward,ac,destino);
 				hijoForward.secuencia.push_back(actFORWARD);
@@ -545,6 +546,10 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		if (!Abiertos.empty())
 		{
 			current = Abiertos.top();
+			while(Cerrados.find(current)!=Cerrados.end() and !Abiertos.empty()){
+				Abiertos.pop();
+				current = Abiertos.top();
+			}
 		}
 	}
 
