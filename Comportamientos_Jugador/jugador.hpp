@@ -33,12 +33,16 @@ struct nodoA{
 
 class ComportamientoJugador : public Comportamiento {
   public:
+    //Constructor del nivel 3 y 4
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
       // Inicializar Variables de Estado
     }
+    //Constructor del nivel 0, 1 y 2
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
       // Inicializar Variables de Estado
       hay_plan = false;
+      objetivos.clear();
+      plan.clear();
     }
     ComportamientoJugador(const ComportamientoJugador & comport) : Comportamiento(comport){}
     ~ComportamientoJugador(){}
@@ -64,8 +68,7 @@ class ComportamientoJugador : public Comportamiento {
   //Métodos h y g para el algoritmo A*
     int CosteCasilla(estado &st, Action &ac, const bool &tiene_bikini, const bool &tiene_zapatillas);
     int FuncionHeuristica(const estado &actual, const estado &meta);
-    void ActualizarValorHeuristico(nodoA &actualizar, Action &ac, const estado &destino);
-    bool yaEnAbiertos(priority_queue<nodoA> &Abiertos,nodoA &descendiente, Action &ac, const estado &destino);
+    void ActualizarValorHeuristico(nodoA &actualizar, Action &ac, const estado &destino); 
   ///////////////////////////////////////////////////////////
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);

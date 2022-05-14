@@ -199,11 +199,6 @@ struct ComparaNodos{
 	}
 };
 
-//ComparaNodos
-//meter nodos en la lista de cerrados en vez de estados
-//////////
-////////////////////////////////////////////////////////////////////////////////////////
-
 // Implementación de la busqueda en profundidad.
 // Entran los puntos origen y destino y devuelve la
 // secuencia de acciones en plan, una lista de acciones.
@@ -460,11 +455,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		Action ac = actTURN_R;
 		hijoTurnR.st.orientacion = (hijoTurnR.st.orientacion + 2) % 8;
 
-		//tener una doble estructura para tener una de set y asi saber si el nodo está ya en abiertos
 		//Comprobar que el nuevo nodo no esté ya en abiertos o en cerrados
-		// La función yaEnAbiertos modifica la cola de Abiertos y en caso de que el nodo ya se encuentre
-		// comprueba el nodo que tenga menor valor de f.
-		//bool estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnR, ac, destino);
 		if (Cerrados.find(hijoTurnR) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoTurnR,ac,destino);
@@ -472,63 +463,51 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 			Abiertos.push(hijoTurnR);
 		}
 		
-		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
-		
 		// Generar descendiente de girar a la derecha 45 grados
 		nodoA hijoSEMITurnR = current;
 		ac = actSEMITURN_R;
 		hijoSEMITurnR.st.orientacion = (hijoSEMITurnR.st.orientacion + 1) % 8;
 
-		//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnR, ac, destino);
 		if (Cerrados.find(hijoSEMITurnR) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoSEMITurnR,ac,destino);
 			hijoSEMITurnR.secuencia.push_back(actSEMITURN_R);
 			Abiertos.push(hijoSEMITurnR);
 		}
-		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
 
 		// Generar descendiente de girar a la izquierda 90 grados
 		nodoA hijoTurnL = current;
 		ac = actTURN_L;
 		hijoTurnL.st.orientacion = (hijoTurnL.st.orientacion + 6) % 8;
 
-		//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoTurnL, ac, destino);
 		if (Cerrados.find(hijoTurnL) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoTurnL,ac,destino);
 			hijoTurnL.secuencia.push_back(actTURN_L);
 			Abiertos.push(hijoTurnL);
 		}
-		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
 
 		// Generar descendiente de girar a la izquierda 45 grados
 		nodoA hijoSEMITurnL = current;
 		ac = actSEMITURN_L;
 		hijoSEMITurnL.st.orientacion = (hijoSEMITurnL.st.orientacion + 7) % 8;
 
-		//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoSEMITurnL, ac, destino);
 		if (Cerrados.find(hijoSEMITurnL) == Cerrados.end())
 		{
 			ActualizarValorHeuristico(hijoSEMITurnL,ac,destino);
 			hijoSEMITurnL.secuencia.push_back(actSEMITURN_L);
 			Abiertos.push(hijoSEMITurnL);
 		}
-		//Comprobar si el nodo se encuentra ya en cerrados buscar si es mejor.
-
-
+		
 		// Generar descendiente de avanzar
 		nodoA hijoForward = current;
 		ac = actFORWARD;
 		if (!HayObstaculoDelante(hijoForward.st))
 		{
-			//estaEnAbiertos = yaEnAbiertos(Abiertos, hijoForward, ac, destino);
-
 			if (Cerrados.find(hijoForward) == Cerrados.end())
 			{
 				ActualizarValorHeuristico(hijoForward,ac,destino);
 				hijoForward.secuencia.push_back(actFORWARD);
-				/////////////////////////////////////////////
 				if(mapaResultado[hijoForward.st.fila][hijoForward.st.columna] == 'K'){
 					hijoForward.tiene_bikini = true;
 					hijoForward.tiene_zapatillas = false;
@@ -537,7 +516,6 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 					hijoForward.tiene_zapatillas = true;
 					hijoForward.tiene_bikini = false;
 				}
-				//////////////////////////////////////////////
 				Abiertos.push(hijoForward);
 			}
 		}
@@ -545,6 +523,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		// Tomo el siguiente valor de la Abiertos
 		if (!Abiertos.empty())
 		{
+			//Comprobar que el nodo no se encuentre ya en cerrados porque eso significaría que estamos repitiendo
 			current = Abiertos.top();
 			while(Cerrados.find(current)!=Cerrados.end() and !Abiertos.empty()){
 				Abiertos.pop();
@@ -655,41 +634,6 @@ void ComportamientoJugador::ActualizarValorHeuristico(nodoA &actualizar, Action 
 	actualizar.h = ComportamientoJugador::FuncionHeuristica(actualizar.st, destino);
 	actualizar.f = actualizar.g + actualizar.h;
 }
-
-//Funcion que comprueba si un nodo descendiente se encuentra ya en la cola de Abiertos, en caso de que esté comprueba si es mejor
-//que el existente y en caso de serlo lo introduce y elimina el otro.
-bool ComportamientoJugador::yaEnAbiertos(priority_queue<nodoA> &Abiertos,nodoA &descendiente, Action &ac, const estado &destino){
-	priority_queue<nodoA> Auxiliar;
-	bool estaEnAbiertos = false;
-
-	while(!Abiertos.empty()){
-		nodoA comparar = Abiertos.top();
-		Abiertos.pop();
-
-		if( descendiente.st == comparar.st and descendiente.tiene_bikini==comparar.tiene_bikini and 
-			descendiente.tiene_zapatillas == comparar.tiene_zapatillas){
-			estaEnAbiertos = true;
-			ActualizarValorHeuristico(descendiente,ac,destino);
-			if(descendiente.f <= comparar.f){
-				descendiente.secuencia.push_back(ac);
-				Auxiliar.push(descendiente);
-			}
-			else{
-				Auxiliar.push(comparar);
-			}
-		}
-		else{
-			Auxiliar.push(comparar);
-		}
-	}
-
-	Abiertos = Auxiliar;
-
-	return estaEnAbiertos;
-}
-
-
-
 
 // Sacar por la consola la secuencia del plan obtenido
 void ComportamientoJugador::PintaPlan(list<Action> plan)
