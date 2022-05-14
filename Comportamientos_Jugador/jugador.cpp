@@ -76,7 +76,6 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 		break;
 	case 2:
 		cout << "Optimo en coste\n";
-		// Incluir aqui la llamada al busqueda de costo uniforme/A*
 		cout << "Nivel 2\n";
 		estado objetivo_nivel_2;
 		objetivo_nivel_2 = objetivos.front();
@@ -532,6 +531,12 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		}
 	}
 
+	bool ComportamientoJugador::pathFinding_DescubreMapa(const estado &origen, list<Action> &plan){
+		//Dado la posición actual creo un nodo;
+		nodoA current;
+		
+	}
+	
 	cout << "Terminada la busqueda\n";
 
 	if (current.st.fila == destino.fila and current.st.columna == destino.columna)
@@ -574,8 +579,7 @@ int ComportamientoJugador::CosteCasilla(estado &st, Action &ac, const bool &tien
 			else
 				return 1;
 			break;
-		case actTURN_L:
-		case actTURN_R:
+		case actTURN_L: case actTURN_R:
 			if(casilla == 'B'){
 				if (!tiene_zapatillas)
 					return 3;
@@ -614,7 +618,6 @@ int ComportamientoJugador::CosteCasilla(estado &st, Action &ac, const bool &tien
 			break;
 	}
 }
-
 
 //Prueba de heurística en que la distancia es, en caso de que una de las componentes sea igual (es decir que se encuentran en línea), devuelve
 // la resta de la componente diferente en valor absoluto.

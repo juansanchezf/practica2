@@ -17,7 +17,6 @@ struct estado {
 };
 
 struct nodoA{
-	//¿Puntero al nodo padre más eficiente?
 	estado st;
 	int h;
 	int g; //Coste de llegar desde el nodo origen hasta el nodo actual.
@@ -35,7 +34,8 @@ class ComportamientoJugador : public Comportamiento {
   public:
     //Constructor del nivel 3 y 4
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
-      // Inicializar Variables de Estado
+      // Inicializar Variables de 
+      hay_plan = false;
     }
     //Constructor del nivel 0, 1 y 2
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
@@ -64,6 +64,7 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding_Profundidad(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Aestrella(const estado &origen, const estado &destino, list<Action> &plan);
+    bool pathFinding_DescubreMapa(const estado &origen, list<Action> &plan);
 
   //Métodos h y g para el algoritmo A*
     int CosteCasilla(estado &st, Action &ac, const bool &tiene_bikini, const bool &tiene_zapatillas);
