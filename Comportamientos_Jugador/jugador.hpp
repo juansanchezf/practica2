@@ -64,13 +64,14 @@ class ComportamientoJugador : public Comportamiento {
     bool pathFinding_Profundidad(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Anchura(const estado &origen, const estado &destino, list<Action> &plan);
     bool pathFinding_Aestrella(const estado &origen, const estado &destino, list<Action> &plan);
-    bool pathFinding_DescubreMapa(const estado &origen, list<Action> &plan);
+    bool pathFinding_DescubreMapa(const estado &origen, const estado &destino, list<Action> &plan);
 
   //Métodos h y g para el algoritmo A*
     int CosteCasilla(estado &st, Action &ac, const bool &tiene_bikini, const bool &tiene_zapatillas);
     int FuncionHeuristica(const estado &actual, const estado &meta);
     void ActualizarValorHeuristico(nodoA &actualizar, Action &ac, const estado &destino); 
   ///////////////////////////////////////////////////////////
+    void ActualizaMapa(Sensores sensores);
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);
 

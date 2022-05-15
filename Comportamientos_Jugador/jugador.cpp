@@ -48,6 +48,11 @@ Action ComportamientoJugador::think(Sensores sensores)
 		cout << "No se pudo encontrar un plan.\n";
 	}
 
+	if(sigAccion == actFORWARD and (sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P')){
+		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+	}
+
+
 	return sigAccion;
 }
 
@@ -530,12 +535,6 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 			}
 		}
 	}
-
-	bool ComportamientoJugador::pathFinding_DescubreMapa(const estado &origen, list<Action> &plan){
-		//Dado la posición actual creo un nodo;
-		nodoA current;
-		
-	}
 	
 	cout << "Terminada la busqueda\n";
 
@@ -554,6 +553,28 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 		cout << "No encontrado plan\n";
 		return false;
 	}
+}
+
+
+bool ComportamientoJugador::pathFinding_DescubreMapa(const estado &origen, const estado &destino, list<Action> &plan){
+	//Dado la posición actual creo un nodo;
+	char casilla_act = mapaResultado[origen.fila][origen.columna];
+	nodoA current;
+	current.st = origen;
+	if(casilla_act == 'K'){
+		current.tiene_bikini = true;
+		current.tiene_zapatillas = false;
+	}
+	else if(casilla_act == 'D'){
+		current.tiene_zapatillas = true;
+		current.tiene_bikini = false;
+	}
+	else{
+		current.tiene_bikini = current.tiene_zapatillas = false;
+	}
+	current.g = 0;
+	current.h = FuncionHeuristica(origen, destino);
+		
 }
 
 //Calcular el coste de trasladarse por una casilla
@@ -636,6 +657,128 @@ void ComportamientoJugador::ActualizarValorHeuristico(nodoA &actualizar, Action 
 	actualizar.g += ComportamientoJugador::CosteCasilla(actualizar.st, ac, actualizar.tiene_bikini, actualizar.tiene_zapatillas);
 	actualizar.h = ComportamientoJugador::FuncionHeuristica(actualizar.st, destino);
 	actualizar.f = actualizar.g + actualizar.h;
+}
+
+void ComportamientoJugador::ActualizaMapa(Sensores sensores){
+	int cont = 0;
+	switch (sensores.sentido){
+		case 0: // Norte
+			for(int i = 0 ; i < 4 ; i++){
+				for(int j = -i ; j <= i ; j++){
+					mapaResultado[sensores.posF-i][sensores.posC+j] = sensores.terreno[cont];
+					cont++;				
+				}
+			}
+		break;
+		case 1: //Noreste
+			mapaResultado[sensores.posF][sensores.posC] = sensores.terreno[0];
+			mapaResultado[sensores.posF-1][sensores.posC] = sensores.terreno[1];
+			mapaResultado[sensores.posF-1][sensores.posC+1] = sensores.terreno[2];
+			mapaResultado[sensores.posF][sensores.posC+1] = sensores.terreno[3];
+			mapaResultado[sensores.posF-2][sensores.posC] = sensores.terreno[4];
+			mapaResultado[sensores.posF-2][sensores.posC+1] = sensores.terreno[5];
+			mapaResultado[sensores.posF-2][sensores.posC+2] = sensores.terreno[6];
+			mapaResultado[sensores.posF-1][sensores.posC+2] = sensores.terreno[7];
+			mapaResultado[sensores.posF][sensores.posC+2] = sensores.terreno[8];
+			mapaResultado[sensores.posF-3][sensores.posC] = sensores.terreno[9];
+			mapaResultado[sensores.posF-3][sensores.posC+1] = sensores.terreno[10];
+			mapaResultado[sensores.posF-3][sensores.posC+2] = sensores.terreno[11];
+			mapaResultado[sensores.posF-3][sensores.posC+3] = sensores.terreno[12];
+			mapaResultado[sensores.posF-2][sensores.posC+3] = sensores.terreno[13];
+			mapaResultado[sensores.posF-1][sensores.posC+3] = sensores.terreno[14];
+			mapaResultado[sensores.posF][sensores.posC+3] = sensores.terreno[15];
+
+		break;
+
+		case 2: // Este
+			for(int j = 0 ; j < 4 ; j++){
+				for(int i = -j ; i <= j ; i++){					
+					mapaResultado[sensores.posF+i][sensores.posC+j] = sensores.terreno[cont];
+					cont++;	
+				}
+				
+			}
+		break;
+		
+		case 3: //SurEste
+			mapaResultado[sensores.posF][sensores.posC] = sensores.terreno[0];
+			mapaResultado[sensores.posF][sensores.posC+1] = sensores.terreno[1];
+			mapaResultado[sensores.posF+1][sensores.posC+1] = sensores.terreno[2];
+			mapaResultado[sensores.posF+1][sensores.posC] = sensores.terreno[3];
+			mapaResultado[sensores.posF][sensores.posC+2] = sensores.terreno[4];
+			mapaResultado[sensores.posF+1][sensores.posC+2] = sensores.terreno[5];
+			mapaResultado[sensores.posF+2][sensores.posC+2] = sensores.terreno[6];
+			mapaResultado[sensores.posF+2][sensores.posC+1] = sensores.terreno[7];
+			mapaResultado[sensores.posF+2][sensores.posC] = sensores.terreno[8];
+			mapaResultado[sensores.posF][sensores.posC+3] = sensores.terreno[9];
+			mapaResultado[sensores.posF+1][sensores.posC+3] = sensores.terreno[10];
+			mapaResultado[sensores.posF+2][sensores.posC+3] = sensores.terreno[11];
+			mapaResultado[sensores.posF+3][sensores.posC+3] = sensores.terreno[12];
+			mapaResultado[sensores.posF+3][sensores.posC+2] = sensores.terreno[13];
+			mapaResultado[sensores.posF+3][sensores.posC+1] = sensores.terreno[14];
+			mapaResultado[sensores.posF+3][sensores.posC] = sensores.terreno[15];
+		break;
+
+		case 4: // Sur
+			for(int i = 0 ; i < 4 ; i++){
+				for(int j = i ; j >= -i ; j--){
+					mapaResultado[sensores.posF+i][sensores.posC+j] = sensores.terreno[cont];
+					cont++;	
+				}
+				
+			}
+		break;
+
+		case 5: //Suroeste
+			mapaResultado[sensores.posF][sensores.posC] = sensores.terreno[0];
+			mapaResultado[sensores.posF+1][sensores.posC] = sensores.terreno[1];
+			mapaResultado[sensores.posF+1][sensores.posC-1] = sensores.terreno[2];
+			mapaResultado[sensores.posF][sensores.posC-1] = sensores.terreno[3];
+			mapaResultado[sensores.posF+2][sensores.posC] = sensores.terreno[4];
+			mapaResultado[sensores.posF+2][sensores.posC-1] = sensores.terreno[5];
+			mapaResultado[sensores.posF+2][sensores.posC-2] = sensores.terreno[6];
+			mapaResultado[sensores.posF+1][sensores.posC-2] = sensores.terreno[7];
+			mapaResultado[sensores.posF][sensores.posC-2] = sensores.terreno[8];
+			mapaResultado[sensores.posF+3][sensores.posC] = sensores.terreno[9];
+			mapaResultado[sensores.posF+3][sensores.posC-1] = sensores.terreno[10];
+			mapaResultado[sensores.posF+3][sensores.posC-2] = sensores.terreno[11];
+			mapaResultado[sensores.posF+3][sensores.posC-3] = sensores.terreno[12];
+			mapaResultado[sensores.posF+2][sensores.posC-3] = sensores.terreno[13];
+			mapaResultado[sensores.posF+1][sensores.posC-3] = sensores.terreno[14];
+			mapaResultado[sensores.posF][sensores.posC-3] = sensores.terreno[15];
+		break;
+		
+		case 6: // Oeste
+			
+			for(int j = 0 ; j < 4 ; j++){
+				for(int i = j ; i >= -j ; i--){
+					mapaResultado[sensores.posF+i][sensores.posC-j] = sensores.terreno[cont];
+					cont++;	
+				}
+				
+			}
+			
+		break;
+		
+		case 7: //Noroeste
+				mapaResultado[sensores.posF][sensores.posC] = sensores.terreno[0];
+				mapaResultado[sensores.posF][sensores.posC-1] = sensores.terreno[1];
+				mapaResultado[sensores.posF-1][sensores.posC-1] = sensores.terreno[2];
+				mapaResultado[sensores.posF-1][sensores.posC] = sensores.terreno[3];
+				mapaResultado[sensores.posF][sensores.posC-2] = sensores.terreno[4];
+				mapaResultado[sensores.posF-1][sensores.posC-2] = sensores.terreno[5];
+				mapaResultado[sensores.posF-2][sensores.posC-2] = sensores.terreno[6];
+				mapaResultado[sensores.posF-2][sensores.posC-1] = sensores.terreno[7];
+				mapaResultado[sensores.posF-2][sensores.posC] = sensores.terreno[8];
+				mapaResultado[sensores.posF][sensores.posC-3] = sensores.terreno[9];
+				mapaResultado[sensores.posF-1][sensores.posC-3] = sensores.terreno[10];
+				mapaResultado[sensores.posF-2][sensores.posC-3] = sensores.terreno[11];
+				mapaResultado[sensores.posF-3][sensores.posC-3] = sensores.terreno[12];
+				mapaResultado[sensores.posF-3][sensores.posC-2] = sensores.terreno[13];
+				mapaResultado[sensores.posF-3][sensores.posC-1] = sensores.terreno[14];
+				mapaResultado[sensores.posF-3][sensores.posC] = sensores.terreno[15];
+			break;
+	}
 }
 
 // Sacar por la consola la secuencia del plan obtenido
