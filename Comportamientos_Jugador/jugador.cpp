@@ -25,40 +25,61 @@ Action ComportamientoJugador::think(Sensores sensores)
 
 	// Capturo los destinos
 	cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
-	objetivos.clear();
-	for (int i = 0; i < sensores.num_destinos; i++)
-	{
-		estado aux;
-		aux.fila = sensores.destino[2 * i];
-		aux.columna = sensores.destino[2 * i + 1];
-		objetivos.push_back(aux);
+	if(sensores.nivel != 3){
+		objetivos.clear();
+		for (int i = 0; i < sensores.num_destinos; i++)
+		{
+			estado aux;
+			aux.fila = sensores.destino[2 * i];
+			aux.columna = sensores.destino[2 * i + 1];
+			objetivos.push_back(aux);
+		}
 	}
-
+	
 
 	//Si no hay plan construyo uno
 	if(!hay_plan){
-		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+		if(sensores.nivel != 3){
+			hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+		}
+		else{
+			if(objetivos.empty()){
+				estado aux;
+				aux.fila = 4;
+				aux.columna = 6;
+				objetivos.push_back(aux);
+
+				aux.fila = 12;
+				aux.columna = 20;
+				objetivos.push_back(aux);
+
+				aux.fila = 20;
+				aux.columna = 10;
+				objetivos.push_back(aux);
+			}
+
+			hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+		}
 	}
 
 	if(hay_plan and plan.size()>0){
 		sigAccion = plan.front();
 		plan.erase(plan.begin());
+
+		if(sensores.nivel == 3){
+			if(sigAccion == actFORWARD and (sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P')){
+				hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+			}
+			ActualizaMapa(sensores);
+		}
+	}
+	else if(objetivos.size()>1){
+		objetivos.erase(objetivos.begin());
+		hay_plan = false;
 	}
 	else{
 		cout << "No se pudo encontrar un plan.\n";
 	}
-
-	if(sigAccion == actFORWARD and (sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P')){
-		estado aux;
-		objetivos.clear();
-		aux.fila = 4;
-		aux.columna = 6;
-		objetivos.push_back(aux);
-		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
-	}
-
-	ActualizaMapa(sensores);
-
 
 	return sigAccion;
 }

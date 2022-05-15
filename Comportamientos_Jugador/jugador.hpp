@@ -36,6 +36,7 @@ class ComportamientoJugador : public Comportamiento {
     ComportamientoJugador(unsigned int size) : Comportamiento(size) {
       // Inicializar Variables de 
       hay_plan = false;
+      objetivos.clear();
       /*for(int i = 0; i < 3; i++){
         for(int j = 0; j < mapaResultado.size(); j++){
           mapaResultado[i][j] = 'P';
