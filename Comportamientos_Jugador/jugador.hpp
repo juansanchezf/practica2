@@ -79,6 +79,8 @@ class ComportamientoJugador : public Comportamiento {
     int FuncionHeuristica(const estado &actual, const estado &meta);
     void ActualizarValorHeuristico(nodoA &actualizar, Action &ac, const estado &destino); 
   ///////////////////////////////////////////////////////////
+
+    bool EnSuCamino(Sensores sensores);
     void ActualizaMapa(Sensores sensores);
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);
