@@ -49,8 +49,15 @@ Action ComportamientoJugador::think(Sensores sensores)
 	}
 
 	if(sigAccion == actFORWARD and (sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P')){
+		estado aux;
+		objetivos.clear();
+		aux.fila = 4;
+		aux.columna = 6;
+		objetivos.push_back(aux);
 		hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
 	}
+
+	ActualizaMapa(sensores);
 
 
 	return sigAccion;
@@ -90,7 +97,11 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 	case 3:
 		cout << "Reto 1: Descubrir el mapa\n";
 		// Incluir aqui la llamada al algoritmo de busqueda para el Reto 1
-		cout << "No implementado aun\n";
+		cout << "Nivel 3\n";
+		estado objetivo_nivel_3;
+		objetivo_nivel_3 = objetivos.front();
+		cout << "fila: " << objetivo_nivel_3.fila << " col:" << objetivo_nivel_3.columna << endl;
+		return pathFinding_Aestrella(origen, objetivo_nivel_3, plan);
 		break;
 	case 4:
 		cout << "Reto 2: Maximizar objetivos\n";
@@ -558,23 +569,7 @@ bool ComportamientoJugador::pathFinding_Aestrella(const estado &origen, const es
 
 bool ComportamientoJugador::pathFinding_DescubreMapa(const estado &origen, const estado &destino, list<Action> &plan){
 	//Dado la posición actual creo un nodo;
-	char casilla_act = mapaResultado[origen.fila][origen.columna];
-	nodoA current;
-	current.st = origen;
-	if(casilla_act == 'K'){
-		current.tiene_bikini = true;
-		current.tiene_zapatillas = false;
-	}
-	else if(casilla_act == 'D'){
-		current.tiene_zapatillas = true;
-		current.tiene_bikini = false;
-	}
-	else{
-		current.tiene_bikini = current.tiene_zapatillas = false;
-	}
-	current.g = 0;
-	current.h = FuncionHeuristica(origen, destino);
-		
+	return false;
 }
 
 //Calcular el coste de trasladarse por una casilla
