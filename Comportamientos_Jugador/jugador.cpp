@@ -12,6 +12,7 @@
 // Para ver los distintos sensores mirar fichero "comportamiento.hpp"
 Action ComportamientoJugador::think(Sensores sensores)
 {
+	srand (time(NULL));
 	Action sigAccion = actIDLE;
 
 	//actualizo la variable actual
@@ -45,16 +46,8 @@ Action ComportamientoJugador::think(Sensores sensores)
 		else{
 			if(objetivos.empty()){
 				estado aux;
-				aux.fila = 4;
-				aux.columna = 6;
-				objetivos.push_back(aux);
-
-				aux.fila = 12;
-				aux.columna = 20;
-				objetivos.push_back(aux);
-
-				aux.fila = 20;
-				aux.columna = 10;
+				aux.fila = rand()%(mapaResultado.size()-4);
+				aux.columna = rand()%(mapaResultado.size()-4);
 				objetivos.push_back(aux);
 			}
 
@@ -68,12 +61,27 @@ Action ComportamientoJugador::think(Sensores sensores)
 
 		if(sensores.nivel == 3){
 			if(sigAccion == actFORWARD and (sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P')){
+				
+				sigAccion = actIDLE;
+
+				estado aux;
+				do{
+					aux.fila = rand()%(mapaResultado.size()-4);
+					aux.columna = rand()%(mapaResultado.size()-4);
+				}while(!EsBuenObjetivo(aux));
+				
+				objetivos.push_back(aux);
 				hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
 			}
+			else if(sigAccion == actFORWARD and (sensores.terreno[2] == 'A' or sensores.terreno[2] == 'B')){
+				hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+				sigAccion = actIDLE;
+			}
+
 			ActualizaMapa(sensores);
 		}
 	}
-	else if(objetivos.size()>1){
+	else if(plan.size() == 0 and objetivos.size()>0){
 		objetivos.erase(objetivos.begin());
 		hay_plan = false;
 	}
@@ -905,6 +913,15 @@ void ComportamientoJugador::VisualizaPlan(const estado &st, const list<Action> &
 			cst.orientacion = (cst.orientacion + 7) % 8;
 		}
 		it++;
+	}
+}
+
+bool ComportamientoJugador::EsBuenObjetivo(estado &st){
+	if(mapaResultado[st.fila][st.columna] == '?'){
+		return true;
+	}
+	else{
+		return false;
 	}
 }
 

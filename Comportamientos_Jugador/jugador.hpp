@@ -37,14 +37,14 @@ class ComportamientoJugador : public Comportamiento {
       // Inicializar Variables de 
       hay_plan = false;
       objetivos.clear();
-      /*for(int i = 0; i < 3; i++){
+      for(int i = 0; i < 3; i++){
         for(int j = 0; j < mapaResultado.size(); j++){
           mapaResultado[i][j] = 'P';
           mapaResultado[j][i] = 'P';
           mapaResultado[mapaResultado.size()-1-i][j] = 'P';
           mapaResultado[j][mapaResultado.size()-1-i] = 'P';
         }
-      }*/
+      }
     }
     //Constructor del nivel 0, 1 y 2
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
@@ -85,6 +85,7 @@ class ComportamientoJugador : public Comportamiento {
     void ActualizaMapa(Sensores sensores);
     void PintaPlan(list<Action> plan);
     bool HayObstaculoDelante(estado &st);
+    bool EsBuenObjetivo(estado &st);
 
 };
 
