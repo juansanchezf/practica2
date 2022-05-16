@@ -45,6 +45,7 @@ class ComportamientoJugador : public Comportamiento {
           mapaResultado[j][mapaResultado.size()-1-i] = 'P';
         }
       }
+      bikini = zapatillas = situado = false;
     }
     //Constructor del nivel 0, 1 y 2
     ComportamientoJugador(std::vector< std::vector< unsigned char> > mapaR) : Comportamiento(mapaR) {
@@ -67,6 +68,7 @@ class ComportamientoJugador : public Comportamiento {
     list<estado> objetivos;
     list<Action> plan;
     bool hay_plan;
+    bool zapatillas, bikini, situado;
 
     // Métodos privados de la clase
     bool pathFinding(int level, const estado &origen, const list<estado> &destino, list<Action> &plan);

@@ -14,15 +14,34 @@ Action ComportamientoJugador::think(Sensores sensores)
 {
 	srand (time(NULL));
 	Action sigAccion = actIDLE;
+	if(sensores.nivel == 4 and !situado){
+		situado = true;
+		return actWHEREIS;
+	}
 
-	//actualizo la variable actual
-	actual.fila = sensores.posF;
-	actual.columna = sensores.posC;
-	actual.orientacion = sensores.sentido;
+	situado = false;
 
-	cout << "Fila: " << actual.fila << endl;
-	cout << "Col : " << actual.columna << endl;
-	cout << "Ori : " << actual.orientacion << endl;
+	if(sensores.nivel <= 4){
+		//actualizo la variable actual
+		actual.fila = sensores.posF;
+		actual.columna = sensores.posC;
+		actual.orientacion = sensores.sentido;
+		
+		//Casilla actual para ver si tiene 
+		char auxilio = sensores.superficie[0];
+		if(auxilio == 'K'){
+			zapatillas = false;
+			bikini = true;
+		}
+		else if(auxilio == 'D'){
+			bikini = false;
+			zapatillas = true; 
+		}
+	
+		cout << "Fila: " << actual.fila << endl;
+		cout << "Col : " << actual.columna << endl;
+		cout << "Ori : " << actual.orientacion << endl;
+	}
 
 	// Capturo los destinos
 	cout << "sensores.num_destinos : " << sensores.num_destinos << endl;
@@ -59,23 +78,28 @@ Action ComportamientoJugador::think(Sensores sensores)
 		sigAccion = plan.front();
 		plan.erase(plan.begin());
 
-		if(sensores.nivel == 3){
+		if(sensores.nivel >= 3){
 			if(sigAccion == actFORWARD and (sensores.terreno[2] == 'M' or sensores.terreno[2] == 'P')){
 				
 				sigAccion = actIDLE;
-
-				estado aux;
-				do{
-					aux.fila = rand()%(mapaResultado.size()-4);
-					aux.columna = rand()%(mapaResultado.size()-4);
-				}while(!EsBuenObjetivo(aux));
-				
-				objetivos.push_back(aux);
 				hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+
+				if(sensores.nivel == 3){
+					estado aux;
+					do{
+						aux.fila = rand()%(mapaResultado.size()-4);
+						aux.columna = rand()%(mapaResultado.size()-4);
+					}while(!EsBuenObjetivo(aux));
+					
+					objetivos.push_back(aux);
+				}
 			}
 			else if(sigAccion == actFORWARD and (sensores.terreno[2] == 'A' or sensores.terreno[2] == 'B')){
-				hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
-				sigAccion = actIDLE;
+				if(!zapatillas and !bikini){
+					hay_plan = pathFinding(sensores.nivel, actual, objetivos, plan);
+					sigAccion = actIDLE;
+				}
+				
 			}
 
 			ActualizaMapa(sensores);
@@ -134,9 +158,10 @@ bool ComportamientoJugador::pathFinding(int level, const estado &origen, const l
 		break;
 	case 4:
 		cout << "Reto 2: Maximizar objetivos\n";
-		// Incluir aqui la llamada al algoritmo de busqueda para el Reto 2
-		cout << "No implementado aun\n";
-		break;
+		estado objetivo_nivel_4;
+		objetivo_nivel_4 = objetivos.front();
+		cout << "fila: " << objetivo_nivel_4.fila << " col:" << objetivo_nivel_4.columna << endl;
+		return pathFinding_Aestrella(origen, objetivo_nivel_3, plan);
 	}
 	return false;
 }
